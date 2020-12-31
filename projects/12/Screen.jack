@@ -1,0 +1,218 @@
+// This file is part of www.nand2tetris.org
+// and the book "The Elements of Computing Systems"
+// by Nisan and Schocken, MIT Press.
+// File name: projects/12/Screen.jack
+
+/**
+ * A library of functions for displaying graphics on the screen.
+ * The Hack physical screen consists of 512 rows (indexed 0..511, top to bottom)
+ * of 256 pixels each (indexed 0..255, left to right). The top left pixel on 
+ * the screen is indexed (0,0).
+ */
+class Screen {
+    static Array screen, twoToThe;
+    static int wordSize, row, col;
+    static boolean color;
+
+    /** Initializes the Screen. */
+    function void init() {
+        let screen = 16384;
+        let wordSize = 16;
+        let row = 256;
+        let col = 512 / wordSize;
+        let color = true;
+
+        let twoToThe = Array.new(16);
+        let twoToThe[0] = 1;
+        let twoToThe[1] = 2;
+        let twoToThe[2] = 4;
+        let twoToThe[3] = 8;
+        let twoToThe[4] = 16;
+        let twoToThe[5] = 32;
+        let twoToThe[6] = 64;
+        let twoToThe[7] = 128;
+        let twoToThe[8] = 256;
+        let twoToThe[9] = 512;
+        let twoToThe[10] = 1024;
+        let twoToThe[11] = 2048;
+        let twoToThe[12] = 4096;
+        let twoToThe[13] = 8192;
+        let twoToThe[14] = 16384; 
+        let twoToThe[15] = 16384 * 2; // Can't hardcode 32768 due to integer size limit
+
+        return;
+    }
+
+    /** Erases the entire screen. */
+    function void clearScreen() {
+        var boolean tmp;
+        let tmp = color;
+        
+        do Screen.setColor(false);
+        do Screen.drawRectangle(0, 0, row - 1, col - 1);
+        do Screen.setColor(tmp);
+
+        return;
+    }
+
+    /** Sets the current color, to be used for all subsequent drawXXX commands.
+     *  Black is represented by true, white by false. */
+    function void setColor(boolean b) {
+        let color = b;
+        return;
+    }
+
+    /** Draws the (x,y) pixel, using the current color. */
+    function void drawPixel(int x, int y) {
+        var int addr, bit, val;
+
+        let addr = (y * col) + (x / wordSize);
+        let bit = x - ((x / wordSize) * wordSize);
+
+        if (color) {
+            let val = screen[addr] | twoToThe[bit];
+        } else {
+            let val = screen[addr] & ~twoToThe[bit];
+        }
+
+        let screen[addr] = val;
+
+        return;
+    }
+
+    function void drawLineLow(int x1, int y1, int x2, int y2) {
+        var int dx, dy, yi, D;
+
+        let dx = x2 - x1;
+        let dy = y2 - y1;
+        let yi = 1;
+
+        if (dy < 0) {
+            let yi = -1;
+            let dy = -dy;
+        }
+
+        let D = (2 * dy) - dx;
+        while (~(x1 = x2)) {
+            do Screen.drawPixel(x1, y1);
+            if (D > 0) {
+                let y1 = y1 + yi;
+                let D = D + (2 * (dy - dx));
+            } else {
+                let D = D + (2 * dy);
+            }
+
+            let x1 = x1 + 1;
+        }
+
+        return;
+    }
+
+    function void drawLineHigh(int x1, int y1, int x2, int y2) {
+        var int dx, dy, xi, D;
+
+        let dx = x2 - x1;
+        let dy = y2 - y1;
+        let xi = 1;
+
+        if (dx < 0) {
+            let xi = -1;
+            let dx = -dx;
+        }
+
+        let D = (2 * dx) - dy;
+        while (~(y1 = y2)) {
+            do Screen.drawPixel(x1, y1);
+            if (D > 0) {
+                let x1 = x1 + xi;
+                let D = D + (2 * (dx - dy));
+            } else {
+                let D = D + (2 * dx);
+            }
+
+            let y1 = y1 + 1;
+        }
+
+        return;
+    }
+
+    /** Draws a line from pixel (x1,y1) to pixel (x2,y2), using the current color. */
+    // https://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm#Algorithm_for_integer_arithmetic
+    function void drawLine(int x1, int y1, int x2, int y2) {
+        var int absX, absY;
+
+        let absX = Math.abs(x2 - x1);
+        let absY = Math.abs(y2 - y1);
+
+        if (absY < absX) {
+            if (x1 > x2) {
+                do Screen.drawLineLow(x2, y2, x1, y1);
+            } else {
+                do Screen.drawLineLow(x1, y1, x2, y2);
+            }
+        } else {
+            if (y1 > y2) {
+                do Screen.drawLineHigh(x2, y2, x1, y1);
+            } else {
+                do Screen.drawLineHigh(x1, y1, x2, y2);
+            }
+        }
+
+        return;
+    }
+
+    /** Draws a filled rectangle whose top left corner is (x1, y1)
+     * and bottom right corner is (x2,y2), using the current color. */
+    function void drawRectangle(int x1, int y1, int x2, int y2) {
+        while (y1 < (y2 + 1)) {
+            do Screen.drawLine(x1, y1, x2, y1);
+            let y1 = y1 + 1;
+        }
+
+        return;
+    }
+
+    function void draw8CirclePoints(int cx, int cy, int x, int y) {
+        do Screen.drawPixel(cx + x, cy + y);
+        do Screen.drawPixel(cx - x, cy + y);
+        do Screen.drawPixel(cx - x, cy - y);
+        do Screen.drawPixel(cx + x, cy - y);
+        do Screen.drawPixel(cx + y, cy + x);
+        do Screen.drawPixel(cx - y, cy + x);
+        do Screen.drawPixel(cx - y, cy - x);
+        do Screen.drawPixel(cx + y, cy - x);
+
+        return;
+    }
+
+    /** Draws a filled circle of radius r<=181 around (x,y), using the current color. */
+    // https://web.engr.oregonstate.edu/~sllu/bcircle.pdf
+    function void drawCircle(int cx, int cy, int r) {
+        var int x, y, xChange, yChange, radiusError;
+
+        while (r > 0) {
+            let x = r;
+            let y = 0;
+            let xChange = 1 - (2 * r);
+            let yChange = 1;
+            let radiusError = 0;
+
+            while (~(x < y)) {
+                do Screen.draw8CirclePoints(cx, cy, x, y);
+                let y = y + 1;
+                let radiusError = radiusError + yChange;
+                let yChange = yChange + 2;
+
+                if (((2 * radiusError) + xChange) > 0) {
+                    let x = x - 1;
+                    let radiusError = radiusError + xChange;
+                    let xChange = xChange + 2;
+                }
+            }
+
+            let r = r - 1;
+        }
+
+		return;
+    }
+}

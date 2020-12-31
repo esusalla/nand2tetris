@@ -1,0 +1,36 @@
+class Main {
+    function void main() {
+        var int len;
+        var Array arr;
+        var int i, min, max;
+
+        let len = Keyboard.readInt("How many numbers? ");
+        let arr = Array.new(len);
+
+        let i = 0;
+        let min = 32767;
+        let max = -32767;
+
+        while (i < len) {
+            let arr[i] = Keyboard.readInt("Enter a number: ");
+
+            if (arr[i] < min) {
+                let min = arr[i];
+            }
+
+            if (arr[i] > max) {
+                let max = arr[i];
+            }
+
+            let i = i + 1;
+        }    
+
+        do Output.printString("The minimum is ");
+        do Output.printInt(min);
+        do Output.println();
+        do Output.printString("The maximum is ");
+        do Output.printInt(max);
+
+        return;
+    }
+}
