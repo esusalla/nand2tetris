@@ -1,5 +1,5 @@
 # nand2tetris
-Ground up implementation of the general-purpose computing system described in [The Elements of Computing Systems](https://mitpress.mit.edu/books/elements-computing-systems) ([nand2tetris](https://www.nand2tetris.org/))
+Ground-up implementation of the general-purpose computing system described in [The Elements of Computing Systems](https://mitpress.mit.edu/books/elements-computing-systems) ([nand2tetris](https://www.nand2tetris.org/))
 
 ### Chapters 1 - 5
 Focused on using a hardware description language (HDL) to implement a variety of combinational and sequential circuits. Earlier chapters begin with basic logic gates and move on to multiplexers / demultiplexers, adders, and an ALU before eventually culminating in a functioning computer that brings all the pieces together.

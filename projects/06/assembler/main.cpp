@@ -54,8 +54,8 @@ void first_pass(Parser& parser, SymbolTable& symbol_table)
 void second_pass(Parser& parser, SymbolTable& symbol_table, const Code& code, const std::string& filename)
 {
     int ram = 16;
-    std::ofstream outfile(filename.substr(0, filename.find('.')) + ".hack");
-    //std::ofstream outfile(std::string(filename.begin(), filename.begin() + filename.find('.')) + ".hack");
+    std::string outpath = filename.substr(0, filename.find_last_of(".asm") - 3) + ".hack";
+    std::ofstream outfile(outpath);
 
     while (parser.has_more_commands()) {
         parser.advance();

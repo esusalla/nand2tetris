@@ -63,7 +63,7 @@ bool get_filepaths(const std::string& input, std::vector<std::string>& filepaths
         filepaths.push_back(input);
         outpath = input.substr(0, input.find_last_of(".vm") - 2) + ".asm";
     }
-    std::cout << outpath << std::endl;
+
     return true;
 }
 
